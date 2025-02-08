@@ -2,10 +2,20 @@
   <div>
     <Navbar />
     <div class="container">
-      <input v-model="searchQuery" placeholder="Search products..." class="search-bar" />
-      <div v-if="error" class="error">{{ error }}</div>
-      <div class="product-grid">
-        <ProductCard v-for="product in filteredProducts" :key="product.id" :product="product" />
+      <SearchBar v-model="searchQuery" />
+
+      <!-- Show loader while fetching products -->
+      <Loader v-if="loading" />
+
+      <!-- When not loading, display content -->
+      <div v-else>
+        <div v-if="error" class="error">{{ error }}</div>
+        <div v-else-if="searchQuery && filteredProducts.length === 0" class="error">
+          No products found.
+        </div>
+        <div v-else class="product-grid">
+          <ProductCard v-for="product in filteredProducts" :key="product.id" :product="product" />
+        </div>
       </div>
     </div>
   </div>
@@ -15,15 +25,18 @@
 import axios from 'axios'
 import ProductCard from '../components/ProductCard.vue'
 import Navbar from '../components/Navbar.vue'
+import SearchBar from '../components/SearchBar.vue'
+import Loader from '../components/Loader.vue'
 
 export default {
   name: 'Home',
-  components: { ProductCard, Navbar },
+  components: { ProductCard, Navbar, SearchBar, Loader },
   data() {
     return {
       products: [],
       searchQuery: '',
       error: null,
+      loading: true, // loading state for API call
     }
   },
   computed: {
@@ -36,10 +49,13 @@ export default {
   },
   async created() {
     try {
+      // await new Promise((resolve) => setTimeout(resolve, 5000))
       const res = await axios.get('https://fakestoreapi.com/products')
       this.products = res.data
     } catch (err) {
       this.error = 'Failed to load products. Please try again later.'
+    } finally {
+      this.loading = false
     }
   },
 }
@@ -49,11 +65,6 @@ export default {
 .container {
   padding: 20px;
 }
-.search-bar {
-  width: 100%;
-  margin-bottom: 20px;
-  padding: 10px;
-}
 .product-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -61,5 +72,8 @@ export default {
 }
 .error {
   color: red;
+  margin-top: 10px;
+  font-size: 16px;
+  text-align: center;
 }
 </style>
