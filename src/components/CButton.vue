@@ -15,16 +15,16 @@
 export default {
   name: 'CButton',
   props: {
-    to: { type: String, default: null }, // For Vue Router navigation
-    href: { type: String, default: null }, // For external links
-    variant: { type: String, default: 'primary' }, // 'primary', 'secondary', 'outline'
-    size: { type: String, default: 'md' }, // 'sm', 'md', 'lg'
+    to: { type: String, default: null },
+    href: { type: String, default: null },
+    variant: { type: String, default: 'primary' },
+    size: { type: String, default: 'md' },
   },
   computed: {
     tag() {
-      if (this.to) return 'RouterLink' // Use Vue Router for navigation
-      if (this.href) return 'a' // Use anchor tag for external links
-      return 'button' // Default to a button element
+      if (this.to) return 'RouterLink'
+      if (this.href) return 'a'
+      return 'button'
     },
     buttonClasses() {
       return [`c-button--${this.variant}`, `c-button--${this.size}`]
@@ -88,5 +88,13 @@ export default {
 .c-button--lg {
   padding: 10px 20px;
   font-size: 1.125rem;
+}
+.c-button--destructive {
+  background-color: #e74c3c;
+  color: #fff;
+}
+.c-button--destructive:hover {
+  background-color: #c0392b;
+  transform: scale(1.05);
 }
 </style>

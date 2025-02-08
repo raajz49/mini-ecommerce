@@ -9,13 +9,18 @@
           <img :src="item.image" alt="" class="item-img" />
           <div class="item-info">
             <h4>{{ item.title }}</h4>
-            <p>Quantity: {{ item.quantity }}</p>
+            <p>
+              Quantity: <strong>{{ item.quantity }}</strong>
+            </p>
             <p>Price: \${{ item.price }}</p>
-            <button @click="remove(item.id)" class="btn-remove">Remove</button>
+            <CButton variant="destructive" size="sm" @click="remove(item.id)">❌ Remove</CButton>
           </div>
         </div>
-        <div class="total">
-          <h3>Total: \${{ totalPrice.toFixed(2) }}</h3>
+        <div class="cart-summary">
+          <h3>
+            Total: <span>\${{ totalPrice.toFixed(2) }}</span>
+          </h3>
+          <CButton variant="primary" size="lg">Proceed to Checkout</CButton>
         </div>
       </div>
     </div>
@@ -26,10 +31,11 @@
 import { useCartStore } from '../stores/Cart'
 import Navbar from '../components/Navbar.vue'
 import { computed } from 'vue'
+import CButton from '../components/CButton.vue'
 
 export default {
   name: 'Cart',
-  components: { Navbar },
+  components: { Navbar, CButton },
   setup() {
     const cartStore = useCartStore()
     const cartItems = computed(() => cartStore.items)
@@ -42,24 +48,61 @@ export default {
 
 <style scoped>
 .cart-container {
+  max-width: 800px;
+  margin: 40px auto;
   padding: 20px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
 }
+
+.cart-title {
+  text-align: center;
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.empty-cart {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #777;
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 10px;
+}
+
 .cart-item {
   display: flex;
-  margin-bottom: 20px;
+  align-items: center;
+  gap: 15px;
+  padding: 15px;
   border-bottom: 1px solid #ddd;
-  padding-bottom: 10px;
 }
+
 .item-img {
   max-width: 100px;
-  margin-right: 15px;
+  border-radius: 8px;
 }
-.btn-remove {
-  background: #e74c3c;
-  color: #fff;
-  border: none;
-  padding: 5px 10px;
-  cursor: pointer;
+
+.item-info {
+  flex: 1;
+}
+
+.cart-summary {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.cart-summary h3 {
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.cart-summary span {
+  font-weight: bold;
+  color: #007bff;
 }
 .total {
   margin-top: 20px;

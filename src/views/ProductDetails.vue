@@ -19,7 +19,7 @@
         </div>
 
         <!-- Add to Cart Button -->
-        <CButton @click="handleAddToCart" variant="primary" size="md"> Add to Cart </CButton>
+        <CButton @click="handleAddToCart" variant="outline" size="md"> Add to Cart </CButton>
       </div>
     </div>
     <Loader v-else />
