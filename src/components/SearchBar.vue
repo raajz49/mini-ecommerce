@@ -23,7 +23,10 @@
   </div>
 </template>
 
-<script>
+<!-- <script>
+import { ref, watch } from 'vue'
+import { useSearchStore } from '../stores/searchStore'
+
 export default {
   name: 'SearchBar',
   props: {
@@ -32,36 +35,96 @@ export default {
       default: '',
     },
   },
-  data() {
-    return {
-      localValue: this.modelValue,
-      debounceTimer: null,
-    }
-  },
-  watch: {
-    // Keep localValue in sync if modelValue changes externally
-    modelValue(newVal) {
-      this.localValue = newVal
-    },
-  },
-  methods: {
-    handleInput(event) {
-      this.localValue = event.target.value
+  setup(props, { emit }) {
+    const searchStore = useSearchStore()
+    const localValue = ref(props.modelValue)
+    let debounceTimer = null
 
-      // Clear any existing debounce timer
-      if (this.debounceTimer) clearTimeout(this.debounceTimer)
+    // Watch for external changes to modelValue
+    watch(
+      () => props.modelValue,
+      (newVal) => {
+        localValue.value = newVal
+      },
+    )
 
-      // Start a new debounce timer (500ms delay)
-      this.debounceTimer = setTimeout(() => {
-        this.$emit('update:modelValue', this.localValue)
+    // Watch for changes in the search store
+    watch(
+      () => searchStore.searchQuery,
+      (newVal) => {
+        localValue.value = newVal
+      },
+    )
+
+    const handleInput = (event) => {
+      localValue.value = event.target.value
+
+      // Clear existing debounce timer
+      if (debounceTimer) clearTimeout(debounceTimer)
+
+      // Set new debounce timer (500ms)
+      debounceTimer = setTimeout(() => {
+        emit('update:modelValue', localValue.value)
+        searchStore.searchQuery = localValue.value // Sync with store
       }, 500)
+    }
+
+    const clearSearch = () => {
+      localValue.value = ''
+      emit('update:modelValue', '')
+      searchStore.searchQuery = ''
+      if (debounceTimer) clearTimeout(debounceTimer)
+    }
+
+    return { localValue, handleInput, clearSearch }
+  },
+}
+</script> -->
+<script>
+import { ref, watch } from 'vue'
+import { useSearchStore } from '../stores/searchStore'
+
+export default {
+  name: 'SearchBar',
+  props: {
+    modelValue: {
+      type: String,
+      default: '',
     },
-    clearSearch() {
-      // Immediately clear the search
-      this.localValue = ''
-      this.$emit('update:modelValue', '')
-      if (this.debounceTimer) clearTimeout(this.debounceTimer)
-    },
+  },
+  setup(props, { emit }) {
+    const searchStore = useSearchStore()
+    const localValue = ref(searchStore.searchQuery)
+    const debounceTimer = ref(null) // Use ref to persist debounce timer
+
+    watch(
+      () => searchStore.searchQuery,
+      (newVal) => {
+        localValue.value = newVal
+      },
+    )
+
+    const handleInput = (event) => {
+      localValue.value = event.target.value
+
+      // Clear existing debounce timer
+      if (debounceTimer.value) clearTimeout(debounceTimer.value)
+
+      // Set new debounce timer (500ms)
+      debounceTimer.value = setTimeout(() => {
+        emit('update:modelValue', localValue.value)
+        searchStore.searchQuery = localValue.value // Sync with store
+      }, 500)
+    }
+
+    const clearSearch = () => {
+      localValue.value = ''
+      emit('update:modelValue', '')
+      searchStore.searchQuery = ''
+      if (debounceTimer.value) clearTimeout(debounceTimer.value)
+    }
+
+    return { localValue, handleInput, clearSearch }
   },
 }
 </script>
