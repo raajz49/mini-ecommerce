@@ -3,7 +3,7 @@
     <div class="navbar-left">
       <!-- for responsive mobile-nav -->
       <button v-if="isMobile" class="hamburger" @click="showMobileNav = true">☰</button>
-      <router-link to="/" class="logo">Mini E-Commerce</router-link>
+      <router-link to="/" class="logo">The-Raajz </router-link>
     </div>
 
     <div class="navbar-center" v-if="!isMobile">
