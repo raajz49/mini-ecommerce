@@ -47,6 +47,8 @@ export default {
       isAdding: false,
     }
   },
+
+  //fetching the detail of individual products from the api according to their id
   async created() {
     try {
       const id = this.$route.params.id
@@ -56,6 +58,8 @@ export default {
       this.error = 'Failed to load product details.'
     }
   },
+
+  // the below function for the quantity to be increased or decreased
   methods: {
     incrementQuantity() {
       this.selectedQuantity++
@@ -65,6 +69,8 @@ export default {
         this.selectedQuantity--
       }
     },
+
+    //the auth and storing the items in cart with the quantity are handled by the stores
     async handleAddToCart() {
       const authStore = useUserStore()
       const toast = useToast()

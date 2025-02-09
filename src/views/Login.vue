@@ -11,67 +11,69 @@
         <div class="form-group">
           <label>Username:</label>
           <input type="text" v-model="username" required />
-          <!-- for name validation with specific error -->
-          <!-- <div class="error" v-if="nameError">{{ nameError }}</div> -->
         </div>
-        <!-- <div class="form-group">
-          <label>Email:</label>
-          <input type="email" v-model="email" required />
-          <div class="error" v-if="emailError">{{ emailError }}</div>
-        </div> -->
 
         <div class="form-group">
           <label>Password:</label>
           <input type="password" v-model="password" required />
         </div>
 
-        <button type="submit" class="btn">Login</button>
+        <!-- login button with loading in it -->
+        <CButton type="submit" :loading="loading" variant="primary"> Login </CButton>
       </form>
 
-      <!-- mock idea for signup and forgot-password -->
+      <!-- just to show the demo how it can be kept -->
       <div class="links">
         <RouterLink to="/forgot-password" class="link">Forgot Password?</RouterLink>
         <span>|</span>
         <RouterLink to="/signup" class="link">Sign Up</RouterLink>
       </div>
+      <!-- upto here to do for future if needed  -->
+
+      <!-- enter the proper data from fakestoreapi to login -->
       <div class="error" v-if="loginError">{{ loginError }}</div>
     </div>
   </div>
 </template>
 
 <script>
+import { ref } from 'vue'
 import { useUserStore } from '../stores/user'
 import { useCartStore } from '../stores/Cart'
 import { useRouter, RouterLink } from 'vue-router'
-import { ref } from 'vue'
 import axios from 'axios'
 import { useToast } from 'vue-toastification'
+import CButton from '../components/CButton.vue'
 
 export default {
   name: 'Login',
   components: {
     RouterLink,
+    CButton,
   },
   setup() {
     const username = ref('')
     const password = ref('')
     const loginError = ref(null)
+    const loading = ref(false) // Loading state
     const userStore = useUserStore()
     const cartStore = useCartStore()
     const toast = useToast()
     const router = useRouter()
 
     const handleLogin = async () => {
-      //for error clearance
+      // Clear any previous errors
       loginError.value = null
 
-      //for basic validation
+      // Basic validation
       if (!username.value || !password.value) {
         loginError.value = 'Username and Password are required.'
         return
       }
+
+      loading.value = true // Set loading state
       try {
-        // Credential post to the api login end point so only the authenticated user can use it
+        // Post credentials to the API endpoint
         const response = await axios.post(
           'https://fakestoreapi.com/auth/login',
           JSON.stringify({
@@ -85,7 +87,7 @@ export default {
           },
         )
         if (response.data && response.data.token) {
-          // On successful login, store the token (and any desired user data) in your store.
+          // Store the token and user's data in your store.
           userStore.login({ username: username.value, token: response.data.token })
           // Check for any pending cart items saved in localStorage
           let pendingCart = JSON.parse(localStorage.getItem('pendingCart') || '[]')
@@ -94,18 +96,25 @@ export default {
               cartStore.addToCart(item.product, item.quantity)
             })
             localStorage.removeItem('pendingCart')
+
+            //toast are kept for every big events
             toast.success('Pending cart items added to your cart!')
           }
+          toast.success('Login successful!')
           router.push('/')
         } else {
-          loginError.value = 'Invalid credentials. Please try again.'
+          loginError.value =
+            'Invalid credentials. Please enter username and password from fakestoreapi'
         }
       } catch (err) {
-        loginError.value = 'Invalid credentials. Please try again.'
+        loginError.value =
+          'Invalid credentials. Please enter username and password from fakestoreapi.'
+      } finally {
+        loading.value = false // Reset loading state
       }
     }
 
-    return { username, password, handleLogin, loginError }
+    return { username, password, handleLogin, loginError, loading }
   },
 }
 </script>
@@ -167,9 +176,9 @@ input {
 
 /* Button styling */
 .btn {
-  display: block; /* Make sure the button is block-level */
-  width: 100%; /* Full width */
-  box-sizing: border-box; /* Include padding and border in the width */
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
   background: linear-gradient(45deg, #2196f3, #1976d2);
   color: #fff;
   border: none;
@@ -181,7 +190,12 @@ input {
   transition: background 0.3s ease;
 }
 
-.btn:hover {
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.btn:hover:not(:disabled) {
   background: linear-gradient(45deg, #1976d2, #2196f3);
 }
 

@@ -1,6 +1,9 @@
 <template>
   <div>
+    <!-- imported the navbar -->
     <Navbar />
+
+    <!-- for creating a proper Shopping cart with overall information about price and quantity -->
     <div class="cart-container">
       <h2>Your Shopping Cart</h2>
       <div v-if="cartItems.length === 0">Your cart is empty.</div>
@@ -13,9 +16,15 @@
               Quantity: <strong>{{ item.quantity }}</strong>
             </p>
             <p>Price: \${{ item.price }}</p>
-            <CButton variant="destructive" size="sm" @click="remove(item.id)">❌ Remove</CButton>
+
+            <!-- Cbutton to remove unwanted products on cart -->
+            <CButton variant="destructive" size="sm" @click="confirmRemove(item.id)"
+              >❌ Remove</CButton
+            >
           </div>
         </div>
+
+        <!-- displays the overall price of the items in the Cart -->
         <div class="cart-summary">
           <h3>
             Total: <span>\${{ totalPrice.toFixed(2) }}</span>
@@ -24,24 +33,54 @@
         </div>
       </div>
     </div>
+
+    <!-- remove items only after the confirmation -->
+    <ConfirmDialog
+      :show="showConfirmDialog"
+      message="Are you sure you want to remove this item from your cart?"
+      @confirm="removeItem"
+      @cancel="cancelRemove"
+    />
   </div>
 </template>
 
 <script>
 import { useCartStore } from '../stores/Cart'
 import Navbar from '../components/Navbar.vue'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import CButton from '../components/CButton.vue'
+import ConfirmDialog from '../components/ConfirmDialog.vue'
 
 export default {
   name: 'Cart',
-  components: { Navbar, CButton },
+  components: { Navbar, CButton, ConfirmDialog },
   setup() {
     const cartStore = useCartStore()
     const cartItems = computed(() => cartStore.items)
     const totalPrice = computed(() => cartStore.totalPrice)
-    const remove = (id) => cartStore.removeFromCart(id)
-    return { cartItems, totalPrice, remove }
+    const showConfirmDialog = ref(false)
+    const itemToRemove = ref(null)
+
+    //removes the items according to its id
+    const confirmRemove = (id) => {
+      itemToRemove.value = id
+      showConfirmDialog.value = true
+    }
+
+    const removeItem = () => {
+      if (itemToRemove.value !== null) {
+        cartStore.removeFromCart(itemToRemove.value)
+        itemToRemove.value = null
+      }
+      showConfirmDialog.value = false
+    }
+    //used in the dialog box in the cancel section
+    const cancelRemove = () => {
+      itemToRemove.value = null
+      showConfirmDialog.value = false
+    }
+
+    return { cartItems, totalPrice, confirmRemove, showConfirmDialog, removeItem, cancelRemove }
   },
 }
 </script>

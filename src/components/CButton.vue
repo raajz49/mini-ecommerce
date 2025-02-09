@@ -1,4 +1,5 @@
 <template>
+  <!-- required component for any button -->
   <component
     :is="tag"
     :to="to"
@@ -6,7 +7,12 @@
     class="c-button"
     :class="buttonClasses"
     v-bind="$attrs"
+    :disabled="loading || $attrs.disabled"
   >
+    <!-- for loader -->
+    <template v-if="loading">
+      <span class="spinner"></span>
+    </template>
     <slot />
   </component>
 </template>
@@ -14,13 +20,16 @@
 <script>
 export default {
   name: 'CButton',
+  //drilling for required props
   props: {
     to: { type: String, default: null },
     href: { type: String, default: null },
     variant: { type: String, default: 'primary' },
     size: { type: String, default: 'md' },
+    loading: { type: Boolean, default: false },
   },
   computed: {
+    //according to the type of button whether link or actual button
     tag() {
       if (this.to) return 'RouterLink'
       if (this.href) return 'a'
@@ -96,5 +105,21 @@ export default {
 .c-button--destructive:hover {
   background-color: #c0392b;
   transform: scale(1.05);
+}
+/* Spinner styling */
+.spinner {
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  animation: spin 1s linear infinite;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>

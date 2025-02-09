@@ -8,6 +8,7 @@ import PrimeVue from 'primevue/config'
 import ConfirmationService from 'primevue/confirmationservice'
 import ConfirmDialog from 'primevue/confirmdialog'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
+import '@fortawesome/fontawesome-free/css/all.css'
 
 const app = createApp(App)
 

@@ -1,5 +1,6 @@
 <template>
   <div class="rating">
+    <!-- //rating component for the product detail -->
     <div class="stars">
       <template v-for="n in fullStars" :key="'full-' + n">
         <span class="star full">★</span>
@@ -28,6 +29,8 @@ export default {
       default: 0,
     },
   },
+
+  //rating according to the number of rated by the calculation
   computed: {
     fullStars() {
       return Math.floor(this.rating)
@@ -52,7 +55,7 @@ export default {
   font-size: 1.2rem;
 }
 .stars .star {
-  color: #f5c518; /* Gold color for stars */
+  color: #f5c518;
 }
 .stars .star.empty {
   color: #ccc;

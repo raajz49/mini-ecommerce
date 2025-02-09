@@ -1,16 +1,7 @@
 <template>
   <div class="search-bar-container">
     <!-- Inline SVG for magnifying glass icon -->
-    <svg
-      class="search-icon"
-      xmlns="http://www.w3.org/2000/svg"
-      fill="currentColor"
-      viewBox="0 0 16 16"
-    >
-      <path
-        d="M11.742 10.344a6.5 6.5 0 1 0-1.398 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85zm-5.242.656a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"
-      />
-    </svg>
+    <i class="fa fa-search search-icon"></i>
     <input
       type="text"
       :value="localValue"
@@ -23,63 +14,6 @@
   </div>
 </template>
 
-<!-- <script>
-import { ref, watch } from 'vue'
-import { useSearchStore } from '../stores/searchStore'
-
-export default {
-  name: 'SearchBar',
-  props: {
-    modelValue: {
-      type: String,
-      default: '',
-    },
-  },
-  setup(props, { emit }) {
-    const searchStore = useSearchStore()
-    const localValue = ref(props.modelValue)
-    let debounceTimer = null
-
-    // Watch for external changes to modelValue
-    watch(
-      () => props.modelValue,
-      (newVal) => {
-        localValue.value = newVal
-      },
-    )
-
-    // Watch for changes in the search store
-    watch(
-      () => searchStore.searchQuery,
-      (newVal) => {
-        localValue.value = newVal
-      },
-    )
-
-    const handleInput = (event) => {
-      localValue.value = event.target.value
-
-      // Clear existing debounce timer
-      if (debounceTimer) clearTimeout(debounceTimer)
-
-      // Set new debounce timer (500ms)
-      debounceTimer = setTimeout(() => {
-        emit('update:modelValue', localValue.value)
-        searchStore.searchQuery = localValue.value // Sync with store
-      }, 500)
-    }
-
-    const clearSearch = () => {
-      localValue.value = ''
-      emit('update:modelValue', '')
-      searchStore.searchQuery = ''
-      if (debounceTimer) clearTimeout(debounceTimer)
-    }
-
-    return { localValue, handleInput, clearSearch }
-  },
-}
-</script> -->
 <script>
 import { ref, watch } from 'vue'
 import { useSearchStore } from '../stores/searchStore'
@@ -95,6 +29,8 @@ export default {
   setup(props, { emit }) {
     const searchStore = useSearchStore()
     const localValue = ref(searchStore.searchQuery)
+
+    //debouce to sync with api on every keystrokes
     const debounceTimer = ref(null) // Use ref to persist debounce timer
 
     watch(
@@ -116,6 +52,8 @@ export default {
         // searchStore.searchQuery = localValue.value // Sync with store
       }, 500)
     }
+
+    //this will clear the search input so user can search other products easily
 
     const clearSearch = () => {
       localValue.value = ''
@@ -146,7 +84,7 @@ export default {
 }
 .search-input {
   width: 100%;
-  padding: 10px 10px 10px 35px; /* extra left padding to accommodate the icon */
+  padding: 10px 10px 10px 35px;
   border: 1px solid #ccc;
   border-radius: 4px;
   box-sizing: border-box;

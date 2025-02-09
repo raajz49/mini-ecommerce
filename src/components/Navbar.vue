@@ -1,14 +1,17 @@
 <template>
   <nav class="navbar">
     <div class="navbar-left">
+      <!-- for responsive mobile-nav -->
+      <button v-if="isMobile" class="hamburger" @click="showMobileNav = true">☰</button>
       <router-link to="/" class="logo">Mini E-Commerce</router-link>
     </div>
 
-    <div class="navbar-center">
+    <div class="navbar-center" v-if="!isMobile">
       <SearchBar v-model="searchStore.searchQuery" class="search-bar" />
     </div>
 
-    <ul class="nav-links">
+    <ul class="nav-links" v-if="!isMobile">
+      <!-- for the large-screen nav -->
       <template v-if="userStore.user">
         <li class="user-info">
           <span>Welcome, {{ userStore.user.username || userStore.user.email }}</span>
@@ -31,35 +34,93 @@
         </li>
       </template>
     </ul>
+    <MobileNav :isOpen="showMobileNav" @close="showMobileNav = false" />
+
+    <!-- confirmdialog resued here -->
+    <ConfirmDialog
+      :show="showConfirmDialog"
+      :message="confirmMessage"
+      @confirm="onConfirm"
+      @cancel="onCancel"
+    />
   </nav>
 </template>
 
 <script>
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useUserStore } from '../stores/user'
 import { useCartStore } from '../stores/Cart'
 import { useRouter } from 'vue-router'
 import SearchBar from '../components/SearchBar.vue'
-import { useSearchStore } from '../stores/searchStore' // Import Search Store
-
+import { useSearchStore } from '../stores/searchStore'
+import MobileNav from './MobileNav.vue'
+import ConfirmDialog from './ConfirmDialog.vue'
+import { useToast } from 'vue-toastification'
 export default {
   name: 'Navbar',
-  components: { SearchBar },
+  components: { SearchBar, MobileNav, ConfirmDialog },
   setup() {
     const userStore = useUserStore()
     const cartStore = useCartStore()
     const router = useRouter()
-    const searchStore = useSearchStore() // Use the search store globally
+    const searchStore = useSearchStore()
+    const isMobile = ref(false)
+    const showMobileNav = ref(false)
+    const showConfirmDialog = ref(false)
+    const confirmMessage = ref('')
+    const toast = useToast()
 
-    const logout = () => {
-      const confirmed = window.confirm('Are you sure you want to logout?')
-      if (confirmed) {
-        userStore.logout()
-        cartStore.items = [] // Clear the cart
-        router.push('/') // Redirect to home
-      }
+    //check for the responsiveness to provide the mobile or normal navbar
+
+    const checkMobile = () => {
+      isMobile.value = window.innerWidth <= 768
     }
 
-    return { userStore, logout, searchStore }
+    onMounted(() => {
+      checkMobile()
+      window.addEventListener('resize', checkMobile)
+    })
+
+    onBeforeUnmount(() => {
+      window.removeEventListener('resize', checkMobile)
+    })
+
+    // const logout = () => {
+    //   const confirmed = window.confirm('Are you sure you want to logout?')
+    //   if (confirmed) {
+    //     userStore.logout()
+    //     cartStore.items = [] // Clear the cart
+    //     router.push('/') // Redirect to home
+    //   }
+    // }
+    const logout = () => {
+      confirmMessage.value = 'Are you sure you want to logout?'
+      showConfirmDialog.value = true
+    }
+
+    const onConfirm = () => {
+      userStore.logout()
+      cartStore.items = [] // Clear the cart
+      router.push('/') // Redirect to home
+      showConfirmDialog.value = false
+      toast.warning('You have been logged out successfully.')
+    }
+
+    const onCancel = () => {
+      showConfirmDialog.value = false
+    }
+
+    return {
+      userStore,
+      logout,
+      searchStore,
+      isMobile,
+      showMobileNav,
+      showConfirmDialog,
+      confirmMessage,
+      onConfirm,
+      onCancel,
+    }
   },
 }
 </script>
@@ -68,22 +129,33 @@ export default {
 .navbar {
   display: flex;
   align-items: center;
-  justify-content: space-between; /* Ensures space is distributed properly */
-  padding: 15px 30px;
+  justify-content: space-between;
+  padding: 0px 30px;
   background-color: #2196f3;
   color: #fff;
-  gap: 20px; /* Adds spacing between elements */
+  gap: 20px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+@media (max-width: 768px) {
+  .navbar {
+    padding: 10px 30px;
+  }
+  .hamburger {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    margin-right: 15px;
+    padding: 5px;
+    cursor: pointer;
+  }
 }
 .search-bar {
   width: 50%;
-  /* padding: 8px; */
-  /* border-radius: 5px; */
-  /* border: 1px solid #ddd; */
   margin-top: 20px;
-}
-.navbar-left {
-  display: flex;
-  align-items: center;
 }
 
 .navbar-center {
@@ -124,10 +196,10 @@ export default {
   font-size: 1rem;
 }
 
-/* Ensuring the search bar looks good */
+/* Ensuring the adjustable searchbar in the middle of the navbar */
 .navbar-center input {
   width: 100%;
-  max-width: 300px; /* Adjust size as needed */
+  max-width: 300px;
   padding: 8px;
   border-radius: 5px;
   border: 1px solid #ddd;
