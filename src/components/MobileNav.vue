@@ -18,7 +18,7 @@
         </div>
 
         <!-- searchabar for mobilenave -->
-        <SearchBar v-model="searchStore.searchQuery" class="mobile-search" />
+        <SearchBar v-model="searchStore.searchQuery" class="mobile-search" theme="mobile" />
 
         <router-link to="/" @click="close">Home</router-link>
         <router-link to="/cart" @click="close">Cart</router-link>
@@ -160,6 +160,8 @@ export default {
 }
 
 .mobile-nav-content {
+  font-size: 25px;
+  color: #d7cdcd;
   display: flex;
   flex-direction: column;
   gap: 15px;
@@ -167,8 +169,8 @@ export default {
 
 .mobile-nav-content a {
   text-decoration: none;
-  color: #fff;
-  font-size: 18px;
+  color: #d7cdcd;
+  font-size: 25px;
   padding: 10px;
   transition: background-color 0.3s;
 }
@@ -181,8 +183,25 @@ export default {
   margin-top: 20px;
   width: 100%;
 }
+/* Dark gray search bar for mobile nav */
+.mobile-nav .mobile-search .search-input {
+  background-color: #333;
+  color: #fff;
+  border-color: #444;
+}
 
-/* Transitions added for the drawer in mobile nav */
+.mobile-nav .mobile-search .search-input::placeholder {
+  color: #bbb;
+}
+
+.mobile-nav .mobile-search .search-icon {
+  color: #bbb;
+}
+
+.mobile-nav .mobile-search .clear-btn {
+  color: #bbb;
+}
+
 .slide-enter-active,
 .slide-leave-active {
   transition: transform 0.3s ease;

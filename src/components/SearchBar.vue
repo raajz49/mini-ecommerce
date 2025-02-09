@@ -7,7 +7,7 @@
       :value="localValue"
       @input="handleInput"
       placeholder="Search products..."
-      class="search-input"
+      :class="['search-input', theme === 'mobile' ? 'dark-gray' : '']"
     />
     <!-- Clear button appears only when there is text -->
     <button v-if="localValue" class="clear-btn" @click="clearSearch">&times;</button>
@@ -24,6 +24,11 @@ export default {
     modelValue: {
       type: String,
       default: '',
+    },
+    //props for theme of searchbar
+    theme: {
+      type: String,
+      default: 'default',
     },
   },
   setup(props, { emit }) {
@@ -89,6 +94,18 @@ export default {
   border-radius: 4px;
   box-sizing: border-box;
 }
+
+/* adjusting according to the size */
+.dark-gray {
+  background-color: darkgray;
+  color: black;
+  border-color: darkgray;
+  font-size: 18px;
+}
+.dark-gray::placeholder {
+  font-size: 18px;
+}
+
 .clear-btn {
   position: absolute;
   right: 10px;
