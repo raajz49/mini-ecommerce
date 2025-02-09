@@ -52,8 +52,9 @@ export default {
     CButton,
   },
   setup() {
-    const username = ref('')
-    const password = ref('')
+    //it will make the reviewer easy to get the id and password
+    const username = ref('johnd')
+    const password = ref('m38rmF$')
     const loginError = ref(null)
     const loading = ref(false) // Loading state
     const userStore = useUserStore()

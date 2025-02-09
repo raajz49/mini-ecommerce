@@ -3,6 +3,9 @@
     <div class="navbar-left">
       <!-- for responsive mobile-nav -->
       <button v-if="isMobile" class="hamburger" @click="showMobileNav = true">☰</button>
+
+      <!-- logo for large screen -->
+      <img v-if="!isMobile" src="@/assets/theraajz-logo.jpg" alt="Logo" class="logo-img" />
       <router-link to="/" class="logo">The-Raajz </router-link>
     </div>
 
@@ -163,12 +166,25 @@ export default {
   display: flex;
   justify-content: center;
 }
+.navbar-left {
+  display: flex;
+  align-items: center; /* Align logo and text vertically */
+}
+
+.logo-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
 
 .logo {
   font-size: 1.5em;
   font-weight: bold;
   text-decoration: none;
   color: inherit;
+  display: flex;
+  align-items: center; /* Ensure text aligns with the logo */
 }
 
 .nav-links {
