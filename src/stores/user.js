@@ -15,4 +15,5 @@ export const useUserStore = defineStore('user', {
       this.isLoggedIn = false
     },
   },
+  persist: true,
 })

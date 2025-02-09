@@ -21,4 +21,7 @@ export const useCartStore = defineStore('cart', {
       this.items = this.items.filter((item) => item.id !== productId)
     },
   },
+
+  //to store the items in cart
+  persist: true,
 })

@@ -9,17 +9,16 @@
 
       <form @submit.prevent="handleLogin">
         <div class="form-group">
-          <label>Name:</label>
-          <input type="name" v-model="name" required />
+          <label>Username:</label>
+          <input type="text" v-model="username" required />
           <!-- for name validation with specific error -->
-          <div class="error" v-if="nameError">{{ nameError }}</div>
+          <!-- <div class="error" v-if="nameError">{{ nameError }}</div> -->
         </div>
-        <div class="form-group">
+        <!-- <div class="form-group">
           <label>Email:</label>
           <input type="email" v-model="email" required />
-          <!-- for email validation -->
           <div class="error" v-if="emailError">{{ emailError }}</div>
-        </div>
+        </div> -->
 
         <div class="form-group">
           <label>Password:</label>
@@ -35,62 +34,78 @@
         <span>|</span>
         <RouterLink to="/signup" class="link">Sign Up</RouterLink>
       </div>
+      <div class="error" v-if="loginError">{{ loginError }}</div>
     </div>
   </div>
 </template>
 
 <script>
 import { useUserStore } from '../stores/user'
-import { RouterLink } from 'vue-router'
+import { useCartStore } from '../stores/Cart'
+import { useRouter, RouterLink } from 'vue-router'
+import { ref } from 'vue'
+import axios from 'axios'
+import { useToast } from 'vue-toastification'
 
 export default {
   name: 'Login',
   components: {
     RouterLink,
   },
-  data() {
-    return {
-      name: '',
-      email: '',
-      password: '',
-      nameError: null,
-      emailError: null,
+  setup() {
+    const username = ref('')
+    const password = ref('')
+    const loginError = ref(null)
+    const userStore = useUserStore()
+    const cartStore = useCartStore()
+    const toast = useToast()
+    const router = useRouter()
+
+    const handleLogin = async () => {
+      //for error clearance
+      loginError.value = null
+
+      //for basic validation
+      if (!username.value || !password.value) {
+        loginError.value = 'Username and Password are required.'
+        return
+      }
+      try {
+        // Credential post to the api login end point so only the authenticated user can use it
+        const response = await axios.post(
+          'https://fakestoreapi.com/auth/login',
+          JSON.stringify({
+            username: username.value,
+            password: password.value,
+          }),
+          {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          },
+        )
+        if (response.data && response.data.token) {
+          // On successful login, store the token (and any desired user data) in your store.
+          userStore.login({ username: username.value, token: response.data.token })
+          // Check for any pending cart items saved in localStorage
+          let pendingCart = JSON.parse(localStorage.getItem('pendingCart') || '[]')
+          if (pendingCart.length > 0) {
+            pendingCart.forEach((item) => {
+              cartStore.addToCart(item.product, item.quantity)
+            })
+            localStorage.removeItem('pendingCart')
+            toast.success('Pending cart items added to your cart!')
+          }
+          router.push('/')
+        } else {
+          loginError.value = 'Invalid credentials. Please try again.'
+        }
+      } catch (err) {
+        loginError.value = 'Invalid credentials. Please try again.'
+      }
     }
-  },
-  methods: {
-    handleLogin() {
-      //error clearance
-      this.nameError = null
-      this.emailError = null
 
-      //for empty string
-      if (!this.name || !this.email || !this.password) {
-        if (!this.name) this.nameError = 'Name is required.'
-        if (!this.email) this.emailError = 'Email is required.'
-        return
-      }
-
-      //validate name
-      const namePattern = /^[A-Za-z\s]+$/
-      if (this.name.length < 3 || !namePattern.test(this.name)) {
-        this.nameError = 'Please enter a valid name'
-        return
-      }
-
-      //libraryless validation for email using simple regrex pattern
-      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-      if (!emailPattern.test(this.email)) {
-        this.emailError = 'Please enter a valid email address.'
-        return
-      }
-      const userStore = useUserStore()
-      if (this.email && this.password) {
-        userStore.login({ name: this.name, email: this.email })
-        this.$router.push('/')
-      } else {
-        this.error = 'All the fields are required.'
-      }
-    },
+    return { username, password, handleLogin, loginError }
   },
 }
 </script>

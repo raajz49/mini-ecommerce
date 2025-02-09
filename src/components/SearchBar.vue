@@ -113,7 +113,7 @@ export default {
       // Set new debounce timer (500ms)
       debounceTimer.value = setTimeout(() => {
         emit('update:modelValue', localValue.value)
-        searchStore.searchQuery = localValue.value // Sync with store
+        // searchStore.searchQuery = localValue.value // Sync with store
       }, 500)
     }
 

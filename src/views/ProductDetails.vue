@@ -67,15 +67,28 @@ export default {
     },
     async handleAddToCart() {
       const authStore = useUserStore()
+      const toast = useToast()
+      const cartStore = useCartStore()
+
+      //for the case if user hasnot loggedin
       if (!authStore.isLoggedIn) {
+        //store the items on cart using localstorage
+        let pendingCart = JSON.parse(localStorage.getItem('pendingCart') || '[]')
+        pendingCart.push({
+          product: this.product,
+          quantity: this.selectedQuantity,
+        })
+
+        localStorage.setItem('pendingCart', JSON.stringify(pendingCart))
+        toast.info('Product saved! Please log in to view your cart.', { timeout: 3000 })
+
         // Redirect to login page if not authenticated
         this.$router.push({ name: 'Login' })
         return
       }
       this.isAdding = true
-      const toast = useToast() // using Vue Toastification
       try {
-        const cartStore = useCartStore()
+        // const cartStore = useCartStore()
         cartStore.addToCart(this.product, this.selectedQuantity)
         toast.success('Product added to cart successfully!', { timeout: 3000 })
       } catch (err) {
